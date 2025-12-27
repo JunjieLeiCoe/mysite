@@ -1,0 +1,41 @@
+{{ partial "header.html" . }}
+
+<h1 class="title">{{ .Title | markdownify }}</h1>
+{{ with .Params.subtitle }}<h2 class="subtitle">{{ . | markdownify }}</h2>{{ end }}
+
+<div class="main blog-list">
+{{ .Content }}
+
+{{ range .RegularPages.GroupByDate "2006" }}
+<div class="year-group">
+  <h2 class="year-heading">{{ .Key }}</h2>
+  {{ range .Pages }}
+  <article class="blog-item">
+    <div class="blog-meta">
+      <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "01/02" }}</time>
+    </div>
+    <div class="blog-content">
+      <h3 class="blog-title">
+        <a href="{{ .RelPermalink }}">{{ .Title | markdownify }}</a>
+      </h3>
+      {{ with .Params.tags }}
+      <div class="post-tags">
+        {{ range . }}
+        <span class="tag-badge">{{ . }}</span>
+        {{ end }}
+      </div>
+      {{ end }}
+      {{ with (trim (partial "summary.html" .) "\n ") }}
+      <p class="blog-summary">{{ . }}</p>
+      {{ end }}
+    </div>
+  </article>
+  {{ end }}
+</div>
+{{ end }}
+
+{{ partial "main_extra.html" . }}
+</div>
+
+{{ partial "footer.html" . }}
+

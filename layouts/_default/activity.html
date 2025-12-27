@@ -1,0 +1,263 @@
+{{ partial "header.html" . }}
+
+<div class="activity-fullscreen">
+  <div class="activity-header">
+    <h1 class="activity-title"><span class="red-text">Writing</span> <span class="green-text">length</span></h1>
+    <div class="activity-subtitle">---</div>
+  </div>
+  
+  <div class="year-selector">
+    <button id="prev-year" class="year-nav">◄</button>
+    <span id="current-year" class="year-display">2025</span>
+    <button id="next-year" class="year-nav">►</button>
+  </div>
+  
+  <div class="heatmap-section">
+    <h2 class="heatmap-title">Writing activity (words)</h2>
+    <div class="heatmap-subtitle">Daily blog post word count (bucketed)</div>
+    
+    <div id="calendar-heatmap" class="calendar-heatmap"></div>
+  </div>
+  
+  <div class="heatmap-section" style="margin-top: 4rem;">
+    <h2 class="heatmap-title">Gym activity</h2>
+    <div class="heatmap-subtitle">Days with gym tag or mentions</div>
+    
+    <div id="gym-heatmap" class="calendar-heatmap"></div>
+  </div>
+</div>
+
+<script>
+// Get all blog posts
+const allPosts = [
+  {{ range where .Site.RegularPages "Section" "blog" }}
+  {
+    date: "{{ .Date.Format "2006-01-02" }}",
+    title: "{{ .Title }}",
+    url: "{{ .RelPermalink }}",
+    wordCount: {{ .WordCount }},
+    tags: [{{ range .Params.tags }}"{{ . }}",{{ end }}]
+  },
+  {{ end }}
+];
+
+let currentYear = new Date().getFullYear();
+
+function getIntensity(wordCount) {
+  if (wordCount === 0) return 0;
+  if (wordCount <= 50) return 1;
+  if (wordCount <= 150) return 2;
+  if (wordCount <= 300) return 3;
+  return 4;
+}
+
+function renderHeatmap(year) {
+  const container = document.getElementById('calendar-heatmap');
+  document.getElementById('current-year').textContent = year;
+  
+  // Filter posts for this year
+  const yearPosts = allPosts.filter(p => p.date.startsWith(year.toString()));
+  
+  // Create activity map
+  const activityMap = {};
+  yearPosts.forEach(post => {
+    if (!activityMap[post.date]) {
+      activityMap[post.date] = { wordCount: 0, posts: [] };
+    }
+    activityMap[post.date].wordCount += post.wordCount;
+    activityMap[post.date].posts.push(post);
+  });
+  
+  // Month names
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  
+  // Days of week to show
+  const daysToShow = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  
+  let html = '<div class="calendar-container">';
+  
+  // Calendar grid (no labels)
+  html += '<div class="calendar-wrapper">';
+  
+  // Render by month to create separate month blocks
+  html += '<div class="weeks-container">';
+  
+  for (let month = 0; month < 12; month++) {
+    const monthStart = new Date(year, month, 1);
+    const monthEnd = new Date(year, month + 1, 0); // Last day of month
+    
+    // Add month separator (except before first month)
+    if (month > 0) {
+      html += '<div class="month-separator"></div>';
+    }
+    
+    // Start month group
+    html += '<div class="month-group">';
+    
+    // Find the first Sunday on or before month start
+    let weekStart = new Date(monthStart);
+    while (weekStart.getDay() !== 0) {
+      weekStart.setDate(weekStart.getDate() - 1);
+    }
+    
+    let currentDate = new Date(weekStart);
+    
+    // Render weeks for this month
+    while (currentDate <= monthEnd) {
+      // Start new week column
+      html += '<div class="week-col">';
+      
+      // Render 7 days
+      for (let day = 0; day < 7; day++) {
+        const dateStr = currentDate.toISOString().split('T')[0];
+        const isInMonth = currentDate.getMonth() === month;
+        
+        if (isInMonth) {
+          const activity = activityMap[dateStr] || { wordCount: 0, posts: [] };
+          const intensity = getIntensity(activity.wordCount);
+          
+          let tooltip = dateStr;
+          if (activity.wordCount > 0) {
+            tooltip += `\\n${activity.posts.length} post(s), ${activity.wordCount} words`;
+          } else {
+            tooltip += '\\nNo writing';
+          }
+          
+          html += `<div class="day-cell level-${intensity}" 
+                        title="${tooltip}" 
+                        data-date="${dateStr}"></div>`;
+        } else {
+          // Empty cell for days outside this month
+          html += '<div class="day-cell empty"></div>';
+        }
+        
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      
+      html += '</div>'; // week-col
+    }
+    
+    html += '</div>'; // month-group
+  }
+  
+  html += '</div>'; // weeks-container
+  html += '</div>'; // calendar-wrapper
+  html += '</div>'; // calendar-container
+  
+  container.innerHTML = html;
+}
+
+function getWeekOfYear(date) {
+  const start = new Date(date.getFullYear(), 0, 1);
+  const diff = date - start;
+  const oneWeek = 1000 * 60 * 60 * 24 * 7;
+  return Math.floor(diff / oneWeek);
+}
+
+// Create gym heatmap
+function createGymHeatmap(year) {
+  const container = document.getElementById('gym-heatmap');
+  if (!container) return;
+  
+  // Filter posts with gym tag
+  const gymPosts = allPosts.filter(p => {
+    if (!p.tags) return false;
+    return p.date.startsWith(year.toString()) && 
+           p.tags.some(tag => tag.toLowerCase().includes('gym') || tag.toLowerCase().includes('健身'));
+  });
+  
+  // Create activity map
+  const activityMap = {};
+  gymPosts.forEach(post => {
+    if (!activityMap[post.date]) {
+      activityMap[post.date] = { count: 0, posts: [] };
+    }
+    activityMap[post.date].count++;
+    activityMap[post.date].posts.push(post);
+  });
+  
+  let html = '<div class="calendar-container"><div class="calendar-wrapper">';
+  html += '<div class="weeks-container">';
+  
+  for (let month = 0; month < 12; month++) {
+    const monthStart = new Date(year, month, 1);
+    const monthEnd = new Date(year, month + 1, 0);
+    
+    if (month > 0) {
+      html += '<div class="month-separator"></div>';
+    }
+    
+    html += '<div class="month-group">';
+    
+    let weekStart = new Date(monthStart);
+    while (weekStart.getDay() !== 0) {
+      weekStart.setDate(weekStart.getDate() - 1);
+    }
+    
+    let currentDate = new Date(weekStart);
+    
+    while (currentDate <= monthEnd) {
+      html += '<div class="week-col">';
+      
+      for (let day = 0; day < 7; day++) {
+        const dateStr = currentDate.toISOString().split('T')[0];
+        const isInMonth = currentDate.getMonth() === month;
+        
+        if (isInMonth) {
+          const activity = activityMap[dateStr];
+          
+          // Gym intensity: 0 = no gym, 1-4 based on number of mentions
+          let intensity = 0;
+          if (activity && activity.count > 0) {
+            if (activity.count === 1) intensity = 4; // One gym day = darkest red
+            else if (activity.count === 2) intensity = 3;
+            else if (activity.count === 3) intensity = 2;
+            else intensity = 1;
+          }
+          
+          let tooltip = dateStr;
+          if (intensity > 0) {
+            tooltip += `\\n✓ Gym day! ${activity.count} post(s)`;
+          } else {
+            tooltip += '\\nNo gym';
+          }
+          
+          html += `<div class="day-cell level-${intensity}" 
+                        title="${tooltip}" 
+                        data-date="${dateStr}"></div>`;
+        } else {
+          html += '<div class="day-cell empty"></div>';
+        }
+        
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      
+      html += '</div>';
+    }
+    
+    html += '</div>';
+  }
+  
+  html += '</div></div></div>';
+  container.innerHTML = html;
+}
+
+// Initialize
+renderHeatmap(currentYear);
+createGymHeatmap(currentYear);
+
+// Year navigation
+document.getElementById('prev-year').addEventListener('click', () => {
+  currentYear--;
+  renderHeatmap(currentYear);
+  createGymHeatmap(currentYear);
+});
+
+document.getElementById('next-year').addEventListener('click', () => {
+  currentYear++;
+  renderHeatmap(currentYear);
+  createGymHeatmap(currentYear);
+});
+</script>
+
+{{ partial "footer.html" . }}

@@ -1,0 +1,171 @@
+{{ partial "header.html" . }}
+
+<h1 class="title">{{ .Title | markdownify }}</h1>
+
+<div class="main tags-page">
+<!-- Interactive Tag Network -->
+<div id="tag-network" class="tag-network"></div>
+
+{{ partial "main_extra.html" . }}
+</div>
+
+<!-- D3.js for network visualization -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+// Tag network data
+const tags = [
+  {{ range .Data.Terms.ByCount }}
+  { name: "{{ .Page.Title }}", count: {{ .Count }}, url: "{{ .Page.RelPermalink }}" },
+  {{ end }}
+];
+
+// Create network visualization
+if (tags.length > 0 && document.getElementById('tag-network')) {
+  const container = document.getElementById('tag-network');
+  const sidebarWidth = window.innerWidth > 968 ? 280 : 0; // Account for sidebar on desktop
+  const width = window.innerWidth - sidebarWidth;
+  const height = window.innerHeight;
+  
+  const svg = d3.select("#tag-network")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("viewBox", [0, 0, width, height]);
+  
+  // Create complex network connections (like the reference)
+  const links = [];
+  tags.forEach((tag, i) => {
+    // Connect to nearby tags
+    for (let j = 1; j <= 3; j++) {
+      const targetIdx = (i + j) % tags.length;
+      if (i !== targetIdx) {
+        links.push({ source: tag, target: tags[targetIdx] });
+      }
+    }
+    // Random additional connections for complexity
+    if (Math.random() > 0.5) {
+      const randomIdx = Math.floor(Math.random() * tags.length);
+      if (i !== randomIdx) {
+        links.push({ source: tag, target: tags[randomIdx] });
+      }
+    }
+  });
+  
+  // Create force simulation
+  const simulation = d3.forceSimulation(tags)
+    .force("charge", d3.forceManyBody().strength(-200))
+    .force("center", d3.forceCenter(width / 2, height / 2))
+    .force("collision", d3.forceCollide().radius(60))
+    .force("link", d3.forceLink(links).distance(100).strength(0.3));
+  
+  // Draw links (thin gray lines like reference)
+  const link = svg.append("g")
+    .attr("class", "links")
+    .selectAll("line")
+    .data(links)
+    .join("line")
+    .attr("stroke", "#444")
+    .attr("stroke-width", 1)
+    .attr("stroke-opacity", 0.3);
+  
+  // Create node groups
+  const node = svg.append("g")
+    .attr("class", "nodes")
+    .selectAll("g")
+    .data(tags)
+    .join("g")
+    .style("cursor", "pointer")
+    .on("click", (event, d) => window.location.href = d.url)
+    .on("mouseover", function(event, d) {
+      // Highlight on hover
+      d3.select(this).select("circle")
+        .transition()
+        .duration(200)
+        .attr("r", 8)
+        .attr("fill", "#4ade80");
+      
+      d3.select(this).select("text")
+        .transition()
+        .duration(200)
+        .style("font-weight", "bold");
+    })
+    .on("mouseout", function(event, d) {
+      d3.select(this).select("circle")
+        .transition()
+        .duration(200)
+        .attr("r", 5)
+        .attr("fill", d => d.count > 1 ? "#22c55e" : "#666");
+      
+      d3.select(this).select("text")
+        .transition()
+        .duration(200)
+        .style("font-weight", "normal");
+    });
+  
+  // Draw small circles (like reference image)
+  node.append("circle")
+    .attr("r", 5)
+    .attr("fill", d => d.count > 1 ? "#22c55e" : "#666") // Green for >1 post, gray otherwise
+    .attr("stroke", "none");
+  
+  // Add text labels BESIDE the nodes (not inside or above)
+  node.append("text")
+    .attr("x", 10) // Position to the right of circle
+    .attr("y", 4)
+    .style("font-size", "14px")
+    .style("font-weight", "normal")
+    .style("fill", "#ccc")
+    .style("pointer-events", "none")
+    .style("user-select", "none")
+    .text(d => d.name);
+  
+  // Make responsive - redraw on window resize
+  window.addEventListener('resize', () => {
+    const newSidebarWidth = window.innerWidth > 968 ? 280 : 0;
+    const newWidth = window.innerWidth - newSidebarWidth;
+    const newHeight = window.innerHeight;
+    
+    svg.attr("width", newWidth).attr("height", newHeight);
+    svg.attr("viewBox", [0, 0, newWidth, newHeight]);
+    
+    simulation.force("center", d3.forceCenter(newWidth / 2, newHeight / 2));
+    simulation.alpha(0.3).restart();
+  });
+  
+  // Update positions on simulation tick
+  simulation.on("tick", () => {
+    link
+      .attr("x1", d => d.source.x)
+      .attr("y1", d => d.source.y)
+      .attr("x2", d => d.target.x)
+      .attr("y2", d => d.target.y);
+    
+    node.attr("transform", d => `translate(${d.x},${d.y})`);
+  });
+  
+  // Drag functionality
+  node.call(d3.drag()
+    .on("start", dragstarted)
+    .on("drag", dragged)
+    .on("end", dragended));
+  
+  function dragstarted(event) {
+    if (!event.active) simulation.alphaTarget(0.3).restart();
+    event.subject.fx = event.subject.x;
+    event.subject.fy = event.subject.y;
+  }
+  
+  function dragged(event) {
+    event.subject.fx = event.x;
+    event.subject.fy = event.y;
+  }
+  
+  function dragended(event) {
+    if (!event.active) simulation.alphaTarget(0);
+    event.subject.fx = null;
+    event.subject.fy = null;
+  }
+}
+</script>
+
+{{ partial "footer.html" . }}

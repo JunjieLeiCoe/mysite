@@ -1,0 +1,70 @@
+/* 
+ * Font configuration for elegant Chinese and English typography
+ * Using Source Han Serif (思源宋体) for that classic printed book feel
+ */
+
+body {
+  font-family: 
+    'Source Han Serif SC',      /* Source Han Serif Simplified Chinese */
+    'Source Han Serif CN',      /* Alternative name */
+    'Songti SC',                /* macOS system Chinese serif */
+    'SimSun',                   /* Windows system Chinese serif */
+    'Noto Serif CJK SC',        /* Google Noto alternative */
+    'Georgia',                  /* English serif fallback */
+    'Palatino',                 /* English serif fallback */
+    'Times New Roman',          /* English serif fallback */
+    serif;
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 
+    'Source Han Serif SC',
+    'Source Han Serif CN',
+    'Songti SC',
+    'SimSun',
+    'Georgia',
+    serif;
+  font-weight: 600;
+}
+
+/* Navigation and UI elements - cleaner sans-serif */
+.menu, 
+.sidebar-menu,
+.meta-line, 
+footer,
+.blog-meta time {
+  font-family: 
+    'PingFang SC',              /* macOS system Chinese sans-serif */
+    'Microsoft YaHei',          /* Windows system Chinese sans-serif */
+    'Helvetica Neue',           /* English sans-serif */
+    'Arial',                    /* English sans-serif fallback */
+    sans-serif;
+}
+
+/* Code blocks */
+code, pre {
+  font-family: 
+    'SF Mono',                  /* macOS monospace */
+    'Monaco',                   /* macOS monospace */
+    'Consolas',                 /* Windows monospace */
+    'Courier New',              /* Cross-platform monospace */
+    monospace;
+  font-size: 0.9em;
+}
+
+/* Ensure proper Chinese punctuation spacing */
+body {
+  text-spacing: ideograph-alpha ideograph-numeric;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Better readability for Chinese text */
+p, li, blockquote {
+  font-feature-settings: "liga" 1, "calt" 1;
+  text-rendering: optimizeLegibility;
+}
+

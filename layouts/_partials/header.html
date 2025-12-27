@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+{{ partial "html_open.html" . }}
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {{ if eq .RelPermalink "/" }}
+    <title>{{ .Site.Title }}</title>
+    <meta property="og:title" content="{{ .Site.Title }}">
+    <meta property="og:type" content="website">
+    {{ else }}
+    <title>{{ .Title }}{{ with .Params.subtitle }} - {{ . }} {{ end }} - {{ .Site.Title }}</title>
+    <meta property="og:title" content="{{ .Title }} - {{ .Site.Title }}">
+    {{ end }}
+    <meta name="twitter:card" content="summary">
+    {{ if eq .RelPermalink "/" }}
+    <meta name="description" content="{{ .Site.Params.description }}">
+    {{ else }}
+      {{ with (trim (partial "summary.html" .) "\n ") }}
+      <meta name="description" content="{{- . -}}">
+      <meta property="og:description" content="{{- . -}}">
+      {{ end }}
+    {{ end }}
+
+    {{ $autoImage := false }}
+    {{ range (findRE "<img src=\"https?://[^\"]+" .Content 1) }}
+    {{ $autoImage = true }}
+    <meta name="twitter:image" content="{{ replaceRE "<img src=\"" "" . | htmlUnescape }}">
+    {{ end }}
+    {{ with .Site.Params.twitterImage }}
+    {{ if not $autoImage }}
+    <meta name="twitter:image" content="{{ absURL . }}">
+    {{ end }}
+    {{ end }}
+
+    {{ if .Keywords }}
+    <meta property="keywords" content ="{{ delimit .Keywords ", " }}">
+    {{ end }}
+
+    {{ with .OutputFormats.Get "RSS" }}
+    <link href="{{ .RelPermalink }}" rel="alternate" type="application/rss+xml" title="{{ $.Site.Title }}">
+    {{ end }}
+
+    {{ range (slice "style" "fonts" "custom") }}
+    <link rel="stylesheet" href="{{ printf "css/%s.css" . | relURL }}">
+    {{ end }}
+    {{ partial "head_custom.html" . }}
+  </head>
+
+  {{ $section := (replaceRE "^/([^/]+)/.*" "$1" .RelPermalink) }}
+  {{ if eq $section "/" }}{{ $section = "" }}{{ end }}
+  {{ $.Scratch.Set "section" $section }}
+  <body class="{{ if .IsPage }}single{{ end }}{{ with $section }} {{ . }}{{ end }}{{ if (in .Content `<div class="footnotes"`) }} has-sidenotes{{ end }}{{ with .Params.page_class }} {{ . }}{{ end }}">
+    <div class="crop-h"></div><div class="crop-v"></div><div class="crop-c"></div>
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-content">
+        <!-- Avatar -->
+        {{ with .Site.Params.avatar }}
+        <div class="avatar">
+          <img src="{{ . | relURL }}" alt="{{ $.Site.Title }}">
+        </div>
+        {{ end }}
+        
+        <!-- Site Title / Tagline -->
+        <div class="site-tagline">
+          {{ with .Site.Params.tagline }}
+          <p>{{ . }}</p>
+          {{ else }}
+          <p>Welcome to {{ $.Site.Title }}'s planet.</p>
+          {{ end }}
+        </div>
+        
+        <!-- Menu -->
+        <nav class="sidebar-menu">
+          {{- $active := "" -}}
+          {{- $menu := (default .Site.Menus.main (index .Site.Menus $section)) -}}
+          {{- range $menu -}}
+          {{- if and (hasPrefix $.Page.RelPermalink (relURL .URL)) (gt (len .URL) (len $active)) -}}
+          {{- $active = .URL -}}
+          {{- end -}}
+          {{- end -}}
+          {{ range $menu }}
+          {{- $mclass := or .Params.class slice -}}
+          {{- if eq $active .URL -}}
+          {{- $mclass = append (slice "active") $mclass -}}
+          {{- end -}}
+          {{- $mclass = delimit $mclass " " -}}
+          <a href="{{ relURL .URL }}"{{ with $mclass }} class="{{ . }}"{{ end }}>{{ .Name }}</a>
+          {{ end }}
+        </nav>
+        
+        <!-- Dark Mode Toggle -->
+        <div class="theme-toggle">
+          <button id="theme-toggle-btn" aria-label="Toggle dark mode">
+            <span class="sun-icon">☀️</span>
+            <span class="moon-icon">🌙</span>
+          </button>
+        </div>
+      </div>
+    </aside>
+    
+    <!-- Mobile Toggle -->
+    <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle menu">
+      <span>☰ Menu</span>
+    </button>
+    
+    <!-- Main Content Area -->
+    <main class="main-content">
+

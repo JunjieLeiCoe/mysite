@@ -1,0 +1,7 @@
+/* Override theme's dark mode to prevent color inversion */
+@media (prefers-color-scheme: dark) {
+  html, img, video, iframe {
+    filter: none !important;
+  }
+}
+

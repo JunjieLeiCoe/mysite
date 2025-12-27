@@ -1,0 +1,69 @@
+baseURL: "https://JunjieLeiCoe.github.io/mysite/"
+title: "Junjie Lei"
+theme: "hugo-paged"
+
+# Enable taxonomies (tags and categories)
+taxonomies:
+  tag: tags
+  category: categories
+
+# Allow raw HTML in markdown
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+
+# Put ALL languages in subdirectories so you get /en/ and /cn/
+defaultContentLanguage: "cn"
+defaultContentLanguageInSubdir: true
+
+languages:
+  cn:
+    languageCode: "zh-cn"
+    languageName: "中文"
+    contentDir: "content/cn"
+    weight: 1
+  en:
+    languageCode: "en-us"
+    languageName: "English"
+    contentDir: "content/en"
+    weight: 2
+
+# Top navigation menu (CN by default)
+menu:
+  main:
+    - name: "首页"
+      url: "/cn/"
+      weight: 1
+    - name: "关于"
+      url: "/cn/about/"
+      weight: 2
+    - name: "日志"
+      url: "/cn/blog/"
+      weight: 3
+    - name: "简历"
+      url: "/cn/cv/"
+      weight: 4
+    - name: "标签"
+      url: "/cn/tags/"
+      weight: 5
+    - name: "活动"
+      url: "/cn/activity/"
+      weight: 6
+    - name: "EN"
+      url: "/en/"
+      weight: 99
+
+params:
+  # Avatar image (place in /static/images/)
+  avatar: "/images/avatar.svg"  # Change this to your avatar path
+  
+  # Tagline that appears below avatar
+  tagline: "Welcome to Junjie's planet."
+  
+  # Optional: logo at left of top nav (for fallback)
+  logo:
+    cn:
+      alt: "雷俊杰"
+    en:
+      alt: "Junjie Lei"
