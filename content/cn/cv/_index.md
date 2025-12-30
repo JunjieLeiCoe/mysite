@@ -7,9 +7,9 @@ layout: "cv"
 
 ### Education | 教育背景
 
-- **B.S. Computer Science & B.A. Economics** | Coe College, Cedar Rapids, IA | 2015-2019
-- **M.S. Data Science & M.S. Applied Economics** | University of San Francisco | 2019-2021
 - **Ph.D. Candidate, Computer Science** | University of California, Davis | 2025-Present
+- **M.S. Data Science & M.S. Applied Economics** | University of San Francisco | 2019-2021
+- **B.S. Computer Science & B.A. Economics** | Coe College, Cedar Rapids, IA | 2015-2019
 
 ### Work Experience | 工作经历
 
@@ -40,14 +40,14 @@ layout: "cv"
   - Game Theory (318-01)
   - Technologies in Data Analytics (DS-311)
 
+- **GitHub Contributor** | San Francisco State University Data Science | 2019-2021
+  - Contributed to open-source educational repositories
+  - [San-Francisco-State-University-DS](https://github.com/San-Francisco-State-University-DS) - 6 repositories available
+
 - **Research Fellow** | Coe College | May 2018 - Mar 2019
   - Part-time research position in Cedar Rapids, Iowa
   - Received full funding from Prochbrasky Endowment Fund
   - Research presented at Midwest Economics Association (MEA) 2019 Annual Meeting panel session
-
-- **GitHub Contributor** | San Francisco State University Data Science | 2019-2021
-  - Contributed to open-source educational repositories
-  - [San-Francisco-State-University-DS](https://github.com/San-Francisco-State-University-DS) - 6 repositories available
 
 ### Publications | 发表论文
 **Working Papers Presented at Conferences:**

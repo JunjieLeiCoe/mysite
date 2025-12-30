@@ -82,40 +82,79 @@ function createTimeline() {
     return getPosition(endStr) - getPosition(startStr);
   }
   
-  function renderBars(items) {
-    return items.map(item => `
-      <div class="tl-bar" 
-           style="left: ${getPosition(item.start)}%; width: ${getWidth(item.start, item.end)}%; background: linear-gradient(135deg, ${item.color}, ${item.color}dd);"
-           data-title="${item.title}"
-           data-institution="${item.institution || ''}"
-           data-dates="${formatDateRange(item.start, item.end)}">
-        <span class="bar-text">${item.title}</span>
+  function renderSingleRow(item, label = '') {
+    return `
+      <div class="timeline-row">
+        <div class="row-label">${label}</div>
+        <div class="row-bars">
+          <div class="tl-bar" 
+               style="left: ${getPosition(item.start)}%; width: ${getWidth(item.start, item.end)}%; background: linear-gradient(135deg, ${item.color}, ${item.color}dd);"
+               data-title="${item.title}"
+               data-institution="${item.institution || ''}"
+               data-dates="${formatDateRange(item.start, item.end)}">
+            <span class="bar-text">${item.title}</span>
+          </div>
+        </div>
       </div>
-    `).join('');
+    `;
   }
+  
+  function renderSection(items, sectionLabel) {
+    return items.map((item, i) => renderSingleRow(item, i === 0 ? sectionLabel : '')).join('');
+  }
+  
+  // Render all items in a single row (for non-overlapping items like Location)
+  function renderSingleLineSection(items, sectionLabel) {
+    return `
+      <div class="timeline-row">
+        <div class="row-label">${sectionLabel}</div>
+        <div class="row-bars">
+          ${items.map(item => `
+            <div class="tl-bar" 
+                 style="left: ${getPosition(item.start)}%; width: ${getWidth(item.start, item.end)}%; background: linear-gradient(135deg, ${item.color}, ${item.color}dd);"
+                 data-title="${item.title}"
+                 data-institution="${item.institution || ''}"
+                 data-dates="${formatDateRange(item.start, item.end)}">
+              <span class="bar-text">${item.title}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+  
+  // Calculate location zone boundaries
+  const zone1End = getPosition('2019-05'); // Iowa ends
+  const zone2End = getPosition('2022-03'); // San Francisco ends
   
   let html = `
     <div class="timeline-fullwidth">
       <!-- Floating Tooltip -->
       <div id="timeline-tooltip" class="timeline-tooltip"></div>
       
-      <!-- Education Row -->
-      <div class="timeline-row">
-        <div class="row-label">Education</div>
-        <div class="row-bars">${renderBars(timelineData.education)}</div>
+      <!-- Vertical Zone Lines (based on locations) -->
+      <div class="zone-lines">
+        <div class="zone-line" style="left: calc(80px + (100% - 80px) * ${zone1End / 100});" data-label="→ SF"></div>
+        <div class="zone-line" style="left: calc(80px + (100% - 80px) * ${zone2End / 100});" data-label="→ LA"></div>
       </div>
       
-      <!-- Work Row -->
-      <div class="timeline-row">
-        <div class="row-label">Work</div>
-        <div class="row-bars">${renderBars(timelineData.work)}</div>
-      </div>
+      <!-- Zone backgrounds -->
+      <div class="zone-bg zone-1" style="left: 80px; width: calc((100% - 80px) * ${zone1End / 100});"></div>
+      <div class="zone-bg zone-2" style="left: calc(80px + (100% - 80px) * ${zone1End / 100}); width: calc((100% - 80px) * ${(zone2End - zone1End) / 100});"></div>
+      <div class="zone-bg zone-3" style="left: calc(80px + (100% - 80px) * ${zone2End / 100}); width: calc((100% - 80px) * ${(100 - zone2End) / 100});"></div>
       
-      <!-- Location Row -->
-      <div class="timeline-row">
-        <div class="row-label">Location</div>
-        <div class="row-bars">${renderBars(timelineData.location)}</div>
-      </div>
+      <!-- Education Rows -->
+      ${renderSection(timelineData.education, 'EDUCATION')}
+      
+      <div class="timeline-section-gap"></div>
+      
+      <!-- Work Rows -->
+      ${renderSection(timelineData.work, 'WORK')}
+      
+      <div class="timeline-section-gap"></div>
+      
+      <!-- Location Row (single line) -->
+      ${renderSingleLineSection(timelineData.location, 'LOCATION')}
       
       <!-- Year Axis -->
       <div class="timeline-axis">
