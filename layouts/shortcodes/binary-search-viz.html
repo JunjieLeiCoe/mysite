@@ -1,0 +1,643 @@
+<div class="viz-container">
+<style>
+    .viz-container{
+      --bg:#0b1220;
+      --text:#e8eefc;
+      --muted:#a9b7dd;
+      --border:#243150;
+      --accent:#7aa2ff;
+      --good:#43d39e;
+      --warn:#ffcc66;
+      --bad:#ff6b6b;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 14px;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: radial-gradient(1200px 800px at 15% 10%, #101a33 0%, var(--bg) 60%);
+      color:var(--text);
+      padding:20px 24px;
+      border-radius: 14px;
+      margin: 10px -40px;
+      width: calc(100% + 80px);
+      max-width: none;
+    }
+    
+    @media (max-width: 768px) {
+      .viz-container {
+        margin: 10px -20px;
+        width: calc(100% + 40px);
+        padding: 16px 20px;
+      }
+    }
+
+    .viz-container * {
+      box-sizing: border-box;
+    }
+
+    .viz-container .wrap{
+      max-width: 100%;
+      margin: 0;
+      display: grid;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .viz-container header{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .viz-container h1{
+      margin:0;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: .2px;
+    }
+    .viz-container .sub{
+      color:var(--muted);
+      font-size: 13.5px;
+      margin-top:6px;
+      line-height:1.35;
+    }
+
+    .viz-container .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 12px;
+    }
+
+    .viz-container .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .viz-container .controls{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .viz-container button{
+      background: rgba(122,162,255,.12);
+      border: 1px solid rgba(122,162,255,.35);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor:pointer;
+      font-weight: 700;
+    }
+    .viz-container button:hover{ background: rgba(122,162,255,.18); }
+    .viz-container button:disabled{ opacity:.5; cursor:not-allowed; }
+
+    .viz-container .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius: 999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      color: var(--muted);
+      font-size: 13px;
+      user-select:none;
+    }
+    .viz-container input[type="range"]{ width: 170px; }
+
+    /* Array visualization */
+    .viz-container .array{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      padding-top: 10px;
+    }
+    .viz-container .cell{
+      width: 110px;
+      height: 110px;
+      border-radius: 14px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      display:grid;
+      place-items:center;
+      position:relative;
+      overflow:hidden;
+    }
+    .viz-container .cell.outside{
+      opacity: .35;
+      filter: saturate(.85);
+    }
+    .viz-container .cell .val{
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing:.2px;
+    }
+    .viz-container .cell .idx{
+      position:absolute;
+      top:10px; left:12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .viz-container .tags{
+      position:absolute;
+      bottom:8px; left:8px; right:8px;
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      justify-content:center;
+    }
+    .viz-container .tag{
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      color: var(--muted);
+    }
+    .viz-container .tag.L{ border-color: rgba(255,204,102,.45); color: #ffd88a; background: rgba(255,204,102,.10);}
+    .viz-container .tag.M{ border-color: rgba(122,162,255,.55); color: #bcd0ff; background: rgba(122,162,255,.12);}
+    .viz-container .tag.R{ border-color: rgba(67,211,158,.50); color: #a9f2db; background: rgba(67,211,158,.10);}
+
+    .viz-container .cell.activeL{ outline: 2px solid rgba(255,204,102,.95); }
+    .viz-container .cell.activeM{ outline: 2px solid rgba(122,162,255,.95); }
+    .viz-container .cell.activeR{ outline: 2px solid rgba(67,211,158,.95); }
+
+    /* 3-column layout */
+    .viz-container .grid3{
+      display:grid;
+      grid-template-columns: 1.05fr .95fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 1100px){
+      .viz-container .grid3{ grid-template-columns: 1fr; }
+    }
+
+    /* State table */
+    .viz-container .kv{
+      display:grid;
+      grid-template-columns: 170px 1fr;
+      gap: 10px 14px;
+      align-items:center;
+      font-size: 14px;
+    }
+    .viz-container .k{ color: var(--muted); }
+    .viz-container .v code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: rgba(0,0,0,.25);
+      padding: 2px 6px;
+      border-radius: 8px;
+      border:1px solid rgba(255,255,255,.06);
+    }
+
+    /* Code panel */
+    .viz-container .codebox{
+      border-radius: 12px;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.22);
+      padding: 10px 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 14px;
+      line-height: 1.55;
+      color: #d7e3ff;
+      white-space: pre;
+      overflow:auto;
+      height: 360px;
+    }
+    .viz-container .code-line{
+      display:flex;
+      gap:12px;
+      padding: 2px 6px;
+      border-radius: 10px;
+    }
+    .code-line .ln{
+      width: 32px;
+      text-align:right;
+      color: #97a8d6;
+      user-select:none;
+      flex: 0 0 auto;
+    }
+    .viz-container .code-line.active{
+      background: rgba(122,162,255,.14);
+      outline: 1px solid rgba(122,162,255,.35);
+    }
+    .viz-container .code-line.active .ln{
+      color: #bcd0ff;
+      font-weight: 900;
+    }
+
+    /* Log */
+    .viz-container .log{
+      height: 360px;
+      overflow:auto;
+      border-radius: 12px;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.22);
+      padding: 12px 14px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: #d7e3ff;
+      white-space: pre-wrap;
+    }
+    .viz-container .log .muted{ color: #97a8d6; }
+
+    .viz-container .foot{
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.4;
+    }
+  </style>
+
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Binary Search Visualization: findMin (your code, line-by-line)</h1>
+        <div class="sub">
+          Test case: <code>[4,5,6,7,0,1,2]</code>. We follow your code path:
+          check <code>nums[l] &lt; nums[r]</code>, else compute <code>m</code> and update <code>l</code>/<code>r</code>.
+        </div>
+      </div>
+      <div class="pill" id="statusPill">Status: Ready</div>
+    </header>
+
+    <div class="card">
+      <div class="row">
+        <div class="controls">
+          <button id="btnPrev">Prev</button>
+          <button id="btnNext">Next</button>
+          <button id="btnPlay">Play</button>
+          <button id="btnReset">Reset</button>
+        </div>
+        <div class="controls">
+          <div class="pill">
+            Speed
+            <input id="speed" type="range" min="150" max="1400" step="50" value="650" />
+            <span id="speedLabel"></span>
+          </div>
+          <div class="pill">Step: <span id="stepLabel"></span></div>
+        </div>
+      </div>
+
+      <div class="array" id="array"></div>
+    </div>
+
+    <div class="grid3">
+      <div class="card">
+        <div style="font-weight:800; margin-bottom:10px;">Memory / Current State</div>
+        <div class="kv" id="kv"></div>
+        <div class="foot" style="margin-top:10px;">
+          Legend: L (yellow), M (blue), R (green). Cells outside current window <code>[l, r]</code> are dimmed.
+          The log and code panel show exactly which line executes each step.
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight:800; margin-bottom:10px;">Code (highlighted line)</div>
+        <div class="codebox" id="codebox"></div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight:800; margin-bottom:10px;">Execution Log</div>
+        <div class="log" id="log"></div>
+      </div>
+    </div>
+
+    <div class="foot">
+      English summary: This page visualizes your exact pointer updates for <code>[4,5,6,7,0,1,2]</code> and logs which line executes at each step.
+      <br />
+      中文总结：该页面用动画演示你这份代码在 <code>[4,5,6,7,0,1,2]</code> 上每一步如何更新指针，并在日志里标出正在执行的代码行。
+    </div>
+  </div>
+
+<script>
+  // --- Algorithm to visualize (as provided):
+  //  1) res = nums[0]
+  //  2) l, r = 0, len(nums) - 1
+  //  3) while l < r:
+  //  4)   if nums[l] < nums[r]:
+  //  5)     res = min(res, nums[l])
+  //  6)     break
+  //  7)   else:
+  //  8)     m = (l + r)//2
+  //  9)     if nums[m] > nums[l]:
+  // 10)       l = m + 1
+  // 11)     else:
+  // 12)       r = m - 1
+  // 13) return res
+
+  const nums = [4,5,6,7,0,1,2];
+
+  const CODE_LINES = [
+    "res = nums[0]",
+    "l, r = 0, len(nums) - 1",
+    "while l < r:",
+    "  if nums[l] < nums[r]:",
+    "    res = min(res, nums[l])",
+    "    break",
+    "  else:",
+    "    m = (l + r)//2",
+    "    if nums[m] > nums[l]:",
+    "      l = m + 1",
+    "    else:",
+    "      r = m - 1",
+    "return res"
+  ];
+
+  function buildSteps(arr){
+    const steps = [];
+    const n = arr.length;
+
+    const snapshot = (obj) => JSON.parse(JSON.stringify(obj));
+
+    let res = arr[0];
+    let l = 0;
+    let r = n - 1;
+    let m = null;
+
+    steps.push(snapshot({ phase:"init", line:1, res, l, r, m,
+      message:`Line 1: res = nums[0] = ${res}` }));
+
+    steps.push(snapshot({ phase:"init", line:2, res, l, r, m,
+      message:`Line 2: l=0, r=${r} (len(nums)-1)` }));
+
+    while (l < r) {
+      steps.push(snapshot({ phase:"loop", line:3, res, l, r, m,
+        message:`Line 3: while l < r ?  ${l} < ${r} => true` }));
+
+      const condSorted = arr[l] < arr[r];
+      steps.push(snapshot({ phase:"check_sorted", line:4, res, l, r, m,
+        message:`Line 4: if nums[l] < nums[r] ?  ${arr[l]} < ${arr[r]} => ${condSorted}` }));
+
+      if (condSorted) {
+        const oldRes = res;
+        res = Math.min(res, arr[l]);
+        steps.push(snapshot({ phase:"update_res", line:5, res, l, r, m,
+          message:`Line 5: res = min(res, nums[l]) => min(${oldRes}, ${arr[l]}) = ${res}` }));
+
+        steps.push(snapshot({ phase:"break", line:6, res, l, r, m,
+          message:`Line 6: break (exit loop)` }));
+        break;
+      }
+
+      // else branch exists as line 7 (implicit)
+      steps.push(snapshot({ phase:"else", line:7, res, l, r, m,
+        message:`Line 7: else branch (array window not sorted)` }));
+
+      m = Math.floor((l + r) / 2);
+      steps.push(snapshot({ phase:"mid", line:8, res, l, r, m,
+        message:`Line 8: m = (l + r)//2 = (${l} + ${r})//2 = ${m}` }));
+
+      const goRight = arr[m] > arr[l];
+      steps.push(snapshot({ phase:"compare", line:9, res, l, r, m,
+        message:`Line 9: if nums[m] > nums[l] ?  ${arr[m]} > ${arr[l]} => ${goRight}` }));
+
+      if (goRight) {
+        const oldL = l;
+        l = m + 1;
+        steps.push(snapshot({ phase:"move", line:10, res, l, r, m,
+          message:`Line 10: l = m + 1 => l ${oldL} -> ${l}` }));
+      } else {
+        // else branch exists as line 11 (implicit)
+        steps.push(snapshot({ phase:"else2", line:11, res, l, r, m,
+          message:`Line 11: else branch (nums[m] <= nums[l])` }));
+
+        const oldR = r;
+        r = m - 1;
+        steps.push(snapshot({ phase:"move", line:12, res, l, r, m,
+          message:`Line 12: r = m - 1 => r ${oldR} -> ${r}` }));
+      }
+    }
+
+    if (!(l < r)) {
+      steps.push(snapshot({ phase:"loop_end", line:3, res, l, r, m,
+        message:`Line 3: while l < r ?  ${l} < ${r} => false (exit loop)` }));
+    }
+
+    steps.push(snapshot({ phase:"return", line:13, res, l, r, m:null,
+      message:`Line 13: return res => ${res}`, result: res }));
+
+    return steps;
+  }
+
+  // --- UI rendering
+  const steps = buildSteps(nums);
+  let idx = 0;
+  let timer = null;
+
+  const elArray = document.getElementById("array");
+  const elLog = document.getElementById("log");
+  const elKV = document.getElementById("kv");
+  const elCodebox = document.getElementById("codebox");
+  const elStepLabel = document.getElementById("stepLabel");
+  const elStatus = document.getElementById("statusPill");
+
+  const btnPrev = document.getElementById("btnPrev");
+  const btnNext = document.getElementById("btnNext");
+  const btnPlay = document.getElementById("btnPlay");
+  const btnReset = document.getElementById("btnReset");
+
+  const speed = document.getElementById("speed");
+  const speedLabel = document.getElementById("speedLabel");
+
+  function fmtVal(v){ return (v === null || v === undefined) ? "—" : v; }
+
+  function stop(){
+    if (timer) clearInterval(timer);
+    timer = null;
+    btnPlay.textContent = "Play";
+  }
+
+  function setStatus(text){
+    elStatus.textContent = `Status: ${text}`;
+  }
+
+  function renderCode(activeLine){
+    if (!elCodebox) return;
+    elCodebox.innerHTML = "";
+    CODE_LINES.forEach((txt, i) => {
+      const lineNo = i + 1;
+      const row = document.createElement("div");
+      row.className = "code-line" + (lineNo === activeLine ? " active" : "");
+
+      const ln = document.createElement("span");
+      ln.className = "ln";
+      ln.textContent = String(lineNo).padStart(2, " ");
+
+      const code = document.createElement("span");
+      code.textContent = txt;
+
+      row.appendChild(ln);
+      row.appendChild(code);
+      elCodebox.appendChild(row);
+    });
+  }
+
+  function renderArray(step){
+    elArray.innerHTML = "";
+    nums.forEach((v, i) => {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+
+      // dim outside [l, r]
+      const hasWindow = (step.l !== null && step.l !== undefined && step.r !== null && step.r !== undefined);
+      if (hasWindow) {
+        const inWindow = (i >= step.l && i <= step.r);
+        if (!inWindow) cell.classList.add("outside");
+      }
+
+      const idxSpan = document.createElement("div");
+      idxSpan.className = "idx";
+      idxSpan.textContent = `i=${i}`;
+
+      const valSpan = document.createElement("div");
+      valSpan.className = "val";
+      valSpan.textContent = v;
+
+      const tags = document.createElement("div");
+      tags.className = "tags";
+
+      const addTag = (label, cls) => {
+        const t = document.createElement("span");
+        t.className = `tag ${cls}`;
+        t.textContent = label;
+        tags.appendChild(t);
+      };
+
+      const L = step.l;
+      const M = step.m;
+      const R = step.r;
+
+      if (i === L) { cell.classList.add("activeL"); addTag("L", "L"); }
+      if (i === M) { cell.classList.add("activeM"); addTag("M", "M"); }
+      if (i === R) { cell.classList.add("activeR"); addTag("R", "R"); }
+
+      cell.appendChild(idxSpan);
+      cell.appendChild(valSpan);
+      cell.appendChild(tags);
+      elArray.appendChild(cell);
+    });
+  }
+
+  function renderKV(step){
+    const leftVal  = (step.l === null || step.l === undefined) ? null : nums[step.l];
+    const midVal   = (step.m === null || step.m === undefined) ? null : nums[step.m];
+    const rightVal = (step.r === null || step.r === undefined) ? null : nums[step.r];
+
+    const rows = [
+      ["nums", `<code>[${nums.join(", ")}]</code>`],
+      ["res", `<code>${fmtVal(step.res)}</code>`],
+      ["l (index)", `<code>${fmtVal(step.l)}</code>`],
+      ["l (value)", `<code>${fmtVal(leftVal)}</code>`],
+      ["m (index)", `<code>${fmtVal(step.m)}</code>`],
+      ["m (value)", `<code>${fmtVal(midVal)}</code>`],
+      ["r (index)", `<code>${fmtVal(step.r)}</code>`],
+      ["r (value)", `<code>${fmtVal(rightVal)}</code>`],
+      ["executed line", `<code>${fmtVal(step.line)}</code>`],
+      ["phase", `<code>${step.phase}</code>`],
+      ["message", `<span style="color:#cfe0ff">${step.message}</span>`]
+    ];
+
+    elKV.innerHTML = "";
+    rows.forEach(([k,v])=>{
+      const dk = document.createElement("div");
+      dk.className = "k";
+      dk.textContent = k;
+
+      const dv = document.createElement("div");
+      dv.className = "v";
+      dv.innerHTML = v;
+
+      elKV.appendChild(dk);
+      elKV.appendChild(dv);
+    });
+  }
+
+  function appendLog(line){
+    const span = document.createElement("span");
+    span.className = "muted";
+    span.textContent = line + "\n";
+    elLog.appendChild(span);
+    elLog.scrollTop = elLog.scrollHeight;
+  }
+
+  function render(){
+    const step = steps[idx];
+    renderArray(step);
+    renderKV(step);
+    renderCode(step.line);
+
+    elStepLabel.textContent = `${idx+1} / ${steps.length}`;
+
+    btnPrev.disabled = idx === 0;
+    btnNext.disabled = idx === steps.length - 1;
+
+    if (step.phase === "return") {
+      setStatus(`Done (return res = ${step.result})`);
+      stop();
+    } else {
+      setStatus("Running");
+    }
+  }
+
+  function reset(){
+    stop();
+    idx = 0;
+    elLog.innerHTML = "";
+    appendLog("=== Start ===");
+    appendLog(`nums = [${nums.join(", ")}]`);
+    appendLog(`Step 1: ${steps[0].message}`);
+    render();
+  }
+
+  function next(){
+    if (idx < steps.length - 1) {
+      idx += 1;
+      appendLog(`Step ${idx+1}: ${steps[idx].message}`);
+      render();
+    }
+  }
+
+  function prev(){
+    if (idx > 0) {
+      idx -= 1;
+      // rebuild log up to idx
+      elLog.innerHTML = "";
+      appendLog("=== Start ===");
+      appendLog(`nums = [${nums.join(", ")}]`);
+      for (let i=0; i<=idx; i++){
+        appendLog(`Step ${i+1}: ${steps[i].message}`);
+      }
+      render();
+    }
+  }
+
+  function play(){
+    if (timer) { stop(); return; }
+    btnPlay.textContent = "Pause";
+    const interval = Number(speed.value);
+    timer = setInterval(() => {
+      if (idx >= steps.length - 1) { stop(); return; }
+      next();
+    }, interval);
+  }
+
+  function renderSpeedLabel(){
+    speedLabel.textContent = `${speed.value} ms`;
+    if (timer) { stop(); play(); }
+  }
+
+  btnPrev.addEventListener("click", prev);
+  btnNext.addEventListener("click", next);
+  btnPlay.addEventListener("click", play);
+  btnReset.addEventListener("click", reset);
+  speed.addEventListener("input", renderSpeedLabel);
+
+  renderSpeedLabel();
+  reset();
+</script>
+</div>
+
