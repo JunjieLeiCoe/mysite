@@ -13,8 +13,8 @@ layout: "cv"
 
 ### Work Experience | 工作经历
 
-- **Data Operations Specialist** | First Capitol Consulting Inc. DBA Trusaic | 2022-Present
-  - ACA Department - Healthcare compliance and data operations
+- **Sr. Data Ops** | First Capitol Consulting Inc. DBA Trusaic | 2022-Present
+  - ACA Department 
 
 - **志愿工作 | Career Break** | San Francisco Bay Area | Jan 2022 - Dec 2023
   - Teaching Faculty | Teaching Assistant | Teaching Fellow | Guest Lecturer
