@@ -1,0 +1,77 @@
+{{ partial "header.html" . }}
+
+<div class="article-meta">
+<h1 class="title">{{ .Title | markdownify }}</h1>
+{{ with .Params.subtitle }}<h2 class="subtitle">{{ . | markdownify }}</h2>{{ end }}
+<h3 class="meta-line">
+  <span>{{ partial "meta.html" . }}</span>
+</h3>
+</div>
+
+<div class="main protected-content" id="protected-content">
+  <div class="password-prompt">
+    <div class="lock-icon">🔒</div>
+    <h2>此文章受密码保护</h2>
+    <p>请输入密码查看内容</p>
+    <form id="password-form" onsubmit="return checkPassword(event)">
+      <input type="password" id="password-input" placeholder="输入密码" autocomplete="off" />
+      <button type="submit">解锁</button>
+    </form>
+    <p id="error-message" class="error-message"></p>
+  </div>
+  
+  <div id="protected-content-inner" class="hidden-content">
+    {{ .Content }}
+    {{ partial "post_nav.html" . }}
+    {{ partial "main_extra.html" . }}
+  </div>
+</div>
+
+<script>
+// Hash function (simple SHA-256 using Web Crypto API)
+async function hashPassword(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function checkPassword(event) {
+  event.preventDefault();
+  
+  const input = document.getElementById('password-input');
+  const errorMsg = document.getElementById('error-message');
+  const password = input.value;
+  
+  // The password hash is stored in the page's front matter
+  const correctHash = "{{ .Params.password_hash }}";
+  const userHash = await hashPassword(password);
+  
+  if (userHash === correctHash) {
+    // Correct password - show content
+    document.querySelector('.password-prompt').style.display = 'none';
+    document.getElementById('protected-content-inner').classList.remove('hidden-content');
+    
+    // Store in session
+    sessionStorage.setItem('unlocked-{{ .File.UniqueID }}', 'true');
+  } else {
+    // Wrong password
+    errorMsg.textContent = '密码错误，请重试';
+    input.value = '';
+    input.focus();
+  }
+  
+  return false;
+}
+
+// Check if already unlocked in this session
+if (sessionStorage.getItem('unlocked-{{ .File.UniqueID }}') === 'true') {
+  document.querySelector('.password-prompt').style.display = 'none';
+  document.getElementById('protected-content-inner').classList.remove('hidden-content');
+}
+</script>
+
+{{ partial "footer.html" . }}
+
+
