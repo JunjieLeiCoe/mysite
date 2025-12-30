@@ -1,0 +1,164 @@
+{{ partial "header.html" . }}
+
+<h1 class="title">{{ .Title | markdownify }}</h1>
+
+<div class="main cv-page">
+
+<!-- Interactive Timeline -->
+<div id="cv-timeline" class="cv-timeline"></div>
+
+<!-- CV Content -->
+<div class="cv-content">
+{{ .Content }}
+</div>
+
+<div class="cv-download">
+  <a href="#" class="download-btn" onclick="window.print(); return false;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19 8h-1V3H6v5H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zM8 5h8v3H8V5zm8 14H8v-4h8v4zm4-4h-2v-2H6v2H4v-4c0-.55.45-1 1-1h14c.55 0 1 .45 1 1v4z"/>
+    </svg>
+    下载 PDF
+  </a>
+</div>
+
+{{ partial "main_extra.html" . }}
+</div>
+
+<script>
+// CV Timeline Data - Modern color palette
+const timelineData = {
+  education: [
+    { title: "B.S. Computer Science & B.A. Economics", institution: "Coe College, Cedar Rapids, IA", start: "2015-08", end: "2019-05", color: "#6366f1" },
+    { title: "M.S. Data Science & M.S. Applied Economics", institution: "University of San Francisco", start: "2019-06", end: "2021-06", color: "#8b5cf6" },
+    { title: "Ph.D. Computer Science", institution: "University of California, Davis", start: "2025-03", end: "", color: "#a855f7" }
+  ],
+  work: [
+    { title: "Data Operations Specialist", institution: "Trusaic (ACA Department)", start: "2022-04", end: "", color: "#14b8a6" }
+  ],
+  location: [
+    { title: "Iowa", start: "2015-08", end: "2019-05", color: "#f43f5e" },
+    { title: "San Francisco, CA", start: "2019-06", end: "2022-03", color: "#ec4899" },
+    { title: "Los Angeles, CA", start: "2022-04", end: "", color: "#f97316" }
+  ]
+};
+
+function parseDate(dateStr) {
+  if (dateStr === "present" || dateStr === "" || !dateStr) return new Date();
+  const [year, month] = dateStr.split('-');
+  return new Date(parseInt(year), parseInt(month) - 1);
+}
+
+function formatDateRange(start, end) {
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const [sy, sm] = start.split('-');
+  const startStr = `${months[parseInt(sm)-1]} ${sy}`;
+  if (!end || end === "" || end === "present") {
+    return `${startStr} → Present`;
+  }
+  const [ey, em] = end.split('-');
+  return `${startStr} → ${months[parseInt(em)-1]} ${ey}`;
+}
+
+function createTimeline() {
+  const container = document.getElementById('cv-timeline');
+  
+  let minYear = 2015;
+  let maxYear = new Date().getFullYear() + 1;
+  const totalYears = maxYear - minYear;
+  
+  function getPosition(dateStr) {
+    const date = parseDate(dateStr);
+    const yearOffset = date.getFullYear() - minYear;
+    const monthOffset = date.getMonth() / 12;
+    return ((yearOffset + monthOffset) / totalYears) * 100;
+  }
+  
+  function getWidth(startStr, endStr) {
+    return getPosition(endStr) - getPosition(startStr);
+  }
+  
+  function renderBars(items) {
+    return items.map(item => `
+      <div class="tl-bar" 
+           style="left: ${getPosition(item.start)}%; width: ${getWidth(item.start, item.end)}%; background: linear-gradient(135deg, ${item.color}, ${item.color}dd);"
+           data-title="${item.title}"
+           data-institution="${item.institution || ''}"
+           data-dates="${formatDateRange(item.start, item.end)}">
+        <span class="bar-text">${item.title}</span>
+      </div>
+    `).join('');
+  }
+  
+  let html = `
+    <div class="timeline-fullwidth">
+      <!-- Floating Tooltip -->
+      <div id="timeline-tooltip" class="timeline-tooltip"></div>
+      
+      <!-- Education Row -->
+      <div class="timeline-row">
+        <div class="row-label">Education</div>
+        <div class="row-bars">${renderBars(timelineData.education)}</div>
+      </div>
+      
+      <!-- Work Row -->
+      <div class="timeline-row">
+        <div class="row-label">Work</div>
+        <div class="row-bars">${renderBars(timelineData.work)}</div>
+      </div>
+      
+      <!-- Location Row -->
+      <div class="timeline-row">
+        <div class="row-label">Location</div>
+        <div class="row-bars">${renderBars(timelineData.location)}</div>
+      </div>
+      
+      <!-- Year Axis -->
+      <div class="timeline-axis">
+        <div class="row-label"></div>
+        <div class="year-markers">
+          ${Array.from({length: totalYears + 1}, (_, i) => minYear + i).map(year => `
+            <div class="year-tick" style="left: ${((year - minYear) / totalYears) * 100}%;"><span>${year}</span></div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+  
+  container.innerHTML = html;
+  
+  // Add interactive hover tooltips
+  const tooltip = document.getElementById('timeline-tooltip');
+  const bars = document.querySelectorAll('.tl-bar');
+  
+  bars.forEach(bar => {
+    bar.addEventListener('mouseenter', (e) => {
+      const title = bar.dataset.title;
+      const institution = bar.dataset.institution;
+      const dates = bar.dataset.dates;
+      
+      tooltip.innerHTML = `
+        <div class="tooltip-title">${title}</div>
+        ${institution ? `<div class="tooltip-institution">${institution}</div>` : ''}
+        <div class="tooltip-dates">${dates}</div>
+      `;
+      tooltip.classList.add('visible');
+    });
+    
+    bar.addEventListener('mousemove', (e) => {
+      tooltip.style.left = e.pageX + 15 + 'px';
+      tooltip.style.top = e.pageY - 10 + 'px';
+    });
+    
+    bar.addEventListener('mouseleave', () => {
+      tooltip.classList.remove('visible');
+    });
+  });
+}
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', createTimeline);
+if (document.readyState !== 'loading') createTimeline();
+</script>
+
+{{ partial "footer.html" . }}
+

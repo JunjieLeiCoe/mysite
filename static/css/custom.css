@@ -775,6 +775,259 @@ html[data-theme="dark"] .redacted.revealed {
 }
 
 /* =================================
+   CV PAGE WITH TIMELINE (Full-width, no borders)
+   ================================= */
+.cv-page {
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.cv-timeline {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+/* Timeline Full Width Container */
+.timeline-fullwidth {
+  width: 100%;
+  padding: 1rem 0 2rem;
+  position: relative;
+}
+
+/* Timeline Rows */
+.timeline-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  min-height: 44px;
+}
+
+.row-label {
+  width: 90px;
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-right: 1rem;
+}
+
+html[data-theme="dark"] .row-label {
+  color: #777;
+}
+
+.row-bars {
+  position: relative;
+  flex: 1;
+  height: 36px;
+  background: transparent;
+  border-radius: 0;
+}
+
+/* Timeline Bars - sleek modern style */
+.tl-bar {
+  position: absolute;
+  height: 100%;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  padding: 0 0.75rem;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  border: none;
+}
+
+.tl-bar:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  z-index: 100;
+}
+
+.bar-text {
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  letter-spacing: 0.01em;
+}
+
+/* Year Axis */
+.timeline-axis {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(128, 128, 128, 0.2);
+}
+
+.year-markers {
+  position: relative;
+  flex: 1;
+  height: 24px;
+}
+
+.year-tick {
+  position: absolute;
+  transform: translateX(-50%);
+}
+
+.year-tick span {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #999;
+  font-family: 'Monaco', 'Consolas', monospace;
+}
+
+html[data-theme="dark"] .year-tick span {
+  color: #666;
+}
+
+/* Interactive Tooltip */
+.timeline-tooltip {
+  position: fixed;
+  background: rgba(0, 0, 0, 0.92);
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  z-index: 9999;
+  max-width: 320px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+}
+
+.timeline-tooltip.visible {
+  opacity: 1;
+}
+
+.tooltip-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 0.35rem;
+  color: #fff;
+}
+
+.tooltip-institution {
+  font-size: 0.8rem;
+  color: #a0aec0;
+  margin-bottom: 0.35rem;
+}
+
+.tooltip-dates {
+  font-size: 0.75rem;
+  color: #68d391;
+  font-weight: 600;
+  font-family: 'Monaco', 'Consolas', monospace;
+}
+
+/* CV Content */
+.cv-content {
+  margin-top: 3rem;
+  max-width: 800px;
+}
+
+.cv-content h2 {
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--border-color);
+  font-size: 1.5rem;
+}
+
+.cv-content h3 {
+  margin-top: 1.5rem;
+  font-size: 1.2rem;
+  color: var(--accent-color);
+}
+
+.cv-content h4 {
+  margin-top: 1rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.cv-content ul {
+  margin-left: 1.5rem;
+}
+
+.cv-content li {
+  margin: 0.5rem 0;
+  line-height: 1.6;
+}
+
+.cv-download {
+  margin: 3rem 0 2rem;
+  text-align: center;
+}
+
+.download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 2rem;
+  background: #3b82f6;
+  color: white !important;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none !important;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.download-btn:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  position: static !important;
+}
+
+/* Print styles */
+@media print {
+  .sidebar,
+  .theme-toggle,
+  .mobile-menu-toggle,
+  .download-btn {
+    display: none !important;
+  }
+  
+  .main-content {
+    margin-left: 0 !important;
+    left: 0 !important;
+    padding: 1cm !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
+
+/* Responsive timeline */
+@media (max-width: 768px) {
+  .timeline-wrapper {
+    min-width: 700px;
+  }
+  
+  .row-label {
+    width: 60px;
+    font-size: 0.75rem;
+  }
+}
+
+/* =================================
    GITHUB-STYLE CONTRIBUTION HEATMAP - FULL SCREEN
    ================================= */
 .activity-fullscreen {
