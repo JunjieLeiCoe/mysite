@@ -56,4 +56,3 @@ Last updated: 2025-12-27
 </div>
 
 ![WeChat](wechat-qr.jpg)
-

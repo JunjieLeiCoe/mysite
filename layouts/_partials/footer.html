@@ -2,23 +2,28 @@
     
     <script>
       // Dark mode toggle functionality
-      const themeToggleBtn = document.getElementById('theme-toggle-btn');
+      const themeCheckbox = document.getElementById('theme-checkbox');
       const htmlElement = document.documentElement;
       const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
       const sidebar = document.querySelector('.sidebar');
       
-      // Default to light mode always
+      // Get saved theme or default to light
       const currentTheme = localStorage.getItem('theme') || 'light';
       htmlElement.setAttribute('data-theme', currentTheme);
+      
+      // Sync checkbox state with current theme
+      if (currentTheme === 'dark') {
+        themeCheckbox.checked = true;
+      }
       
       // Set light mode as default on first visit
       if (!localStorage.getItem('theme')) {
         localStorage.setItem('theme', 'light');
       }
       
-      themeToggleBtn.addEventListener('click', () => {
-        let theme = htmlElement.getAttribute('data-theme');
-        if (theme === 'light') {
+      // Toggle theme on checkbox change
+      themeCheckbox.addEventListener('change', () => {
+        if (themeCheckbox.checked) {
           htmlElement.setAttribute('data-theme', 'dark');
           localStorage.setItem('theme', 'dark');
         } else {

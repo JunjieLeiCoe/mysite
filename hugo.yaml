@@ -56,7 +56,7 @@ menu:
 
 params:
   # Avatar image (place in /static/images/)
-  avatar: "/images/avatar.svg"  # Change this to your avatar path
+  avatar: "images/avatar.png"
   
   # Tagline that appears below avatar
   tagline: "Welcome to Junjie's planet."

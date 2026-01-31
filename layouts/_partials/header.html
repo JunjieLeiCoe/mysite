@@ -58,7 +58,7 @@
         <!-- Avatar -->
         {{ with .Site.Params.avatar }}
         <div class="avatar">
-          <img src="{{ . | relURL }}" alt="{{ $.Site.Title }}">
+          <img src="{{ . | absURL }}" alt="{{ $.Site.Title }}">
         </div>
         {{ end }}
         
@@ -90,12 +90,26 @@
           {{ end }}
         </nav>
         
-        <!-- Dark Mode Toggle -->
+        <!-- Dark Mode Toggle - Cyberpunk 2077 Style -->
         <div class="theme-toggle">
-          <button id="theme-toggle-btn" aria-label="Toggle dark mode">
-            <span class="sun-icon">☀️</span>
-            <span class="moon-icon">🌙</span>
-          </button>
+          <label class="cyber-toggle" aria-label="Toggle dark mode">
+            <input type="checkbox" id="theme-checkbox">
+            <div class="cyber-track">
+              <div class="cyber-scanlines"></div>
+              <div class="cyber-glitch-overlay"></div>
+              <span class="cyber-label cyber-off">OFF</span>
+              <span class="cyber-label cyber-on">ON</span>
+              <div class="cyber-thumb">
+                <div class="cyber-thumb-inner">
+                  <div class="cyber-icon"></div>
+                </div>
+                <div class="cyber-glow"></div>
+              </div>
+              <div class="cyber-circuit">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+          </label>
         </div>
       </div>
     </aside>
