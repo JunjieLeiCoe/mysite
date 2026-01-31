@@ -47,9 +47,9 @@ menu:
     - name: "标签"
       url: "/cn/tags/"
       weight: 5
-    - name: "活动"
-      url: "/cn/activity/"
-      weight: 6
+    # - name: "活动"
+    #   url: "/cn/activity/"
+    #   weight: 6
     - name: "EN"
       url: "/en/"
       weight: 99
