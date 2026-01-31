@@ -14,8 +14,8 @@ body {
     'Palatino',                 /* English serif fallback */
     'Times New Roman',          /* English serif fallback */
     serif;
-  font-size: 17px;
-  line-height: 1.75;
+  font-size: 16px;
+  line-height: 1.8;
 }
 
 /* Headings */
