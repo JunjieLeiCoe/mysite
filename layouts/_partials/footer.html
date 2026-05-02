@@ -1,35 +1,20 @@
     </main><!-- end main-content -->
     
     <script>
-      // Dark mode toggle functionality
-      const themeCheckbox = document.getElementById('theme-checkbox');
+      // Theme toggle (Tesla-style icon button)
+      const themeBtn = document.getElementById('theme-checkbox');
       const htmlElement = document.documentElement;
       const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
       const sidebar = document.querySelector('.sidebar');
-      
-      // Get saved theme or default to light
-      const currentTheme = localStorage.getItem('theme') || 'light';
-      htmlElement.setAttribute('data-theme', currentTheme);
-      
-      // Sync checkbox state with current theme
-      if (currentTheme === 'dark') {
-        themeCheckbox.checked = true;
-      }
-      
-      // Set light mode as default on first visit
-      if (!localStorage.getItem('theme')) {
-        localStorage.setItem('theme', 'light');
-      }
-      
-      // Toggle theme on checkbox change
-      themeCheckbox.addEventListener('change', () => {
-        if (themeCheckbox.checked) {
-          htmlElement.setAttribute('data-theme', 'dark');
-          localStorage.setItem('theme', 'dark');
-        } else {
-          htmlElement.setAttribute('data-theme', 'light');
-          localStorage.setItem('theme', 'light');
-        }
+
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      htmlElement.setAttribute('data-theme', savedTheme);
+      if (!localStorage.getItem('theme')) localStorage.setItem('theme', 'light');
+
+      themeBtn.addEventListener('click', () => {
+        const next = htmlElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        htmlElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
       });
       
       // Mobile menu toggle

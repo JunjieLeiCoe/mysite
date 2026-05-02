@@ -90,26 +90,38 @@
           {{ end }}
         </nav>
         
-        <!-- Dark Mode Toggle - Cyberpunk 2077 Style -->
-        <div class="theme-toggle">
-          <label class="cyber-toggle" aria-label="Toggle dark mode">
-            <input type="checkbox" id="theme-checkbox">
-            <div class="cyber-track">
-              <div class="cyber-scanlines"></div>
-              <div class="cyber-glitch-overlay"></div>
-              <span class="cyber-label cyber-off">OFF</span>
-              <span class="cyber-label cyber-on">ON</span>
-              <div class="cyber-thumb">
-                <div class="cyber-thumb-inner">
-                  <div class="cyber-icon"></div>
-                </div>
-                <div class="cyber-glow"></div>
-              </div>
-              <div class="cyber-circuit">
-                <span></span><span></span><span></span>
+        {{ if and .IsPage (eq .Section "blog") }}
+        <!-- Blog Post Tree (Obsidian-style) -->
+        <div class="sidebar-notes">
+          <div class="sidebar-search">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Search page or heading..." id="sidebar-search">
+          </div>
+          <div class="notes-tree" id="notes-tree">
+            {{ $blogPages := where .Site.RegularPages "Section" "blog" }}
+            {{ range $blogPages.GroupByDate "2006" }}
+            <div class="tree-group open">
+              <button class="tree-toggle" onclick="this.parentElement.classList.toggle('open')">
+                <svg class="tree-chevron" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                <span>{{ .Key }}</span>
+              </button>
+              <div class="tree-items">
+                {{ range .Pages.ByDate.Reverse }}
+                <a href="{{ .RelPermalink }}" class="tree-item{{ if eq $.Page.RelPermalink .RelPermalink }} active{{ end }}">{{ .Title }}</a>
+                {{ end }}
               </div>
             </div>
-          </label>
+            {{ end }}
+          </div>
+        </div>
+        {{ end }}
+        
+        <!-- Theme Toggle - Tesla minimal icon -->
+        <div class="theme-toggle">
+          <button type="button" id="theme-checkbox" class="theme-icon-btn" aria-label="Toggle theme">
+            <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+            <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+          </button>
         </div>
       </div>
     </aside>

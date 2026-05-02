@@ -1,65 +1,65 @@
-/* 
- * Font configuration for elegant Chinese and English typography
- * Using Source Han Serif (思源宋体) for that classic printed book feel
+/*
+ * Minimalist font stack inspired by opencode.ai
+ * Inter for body, clean Chinese sans-serif fallbacks
  */
 
+/* Import Inter from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 body {
-  font-family: 
-    'Source Han Serif SC',      /* Source Han Serif Simplified Chinese */
-    'Source Han Serif CN',      /* Alternative name */
-    'Songti SC',                /* macOS system Chinese serif */
-    'SimSun',                   /* Windows system Chinese serif */
-    'Noto Serif CJK SC',        /* Google Noto alternative */
-    'Georgia',                  /* English serif fallback */
-    'Palatino',                 /* English serif fallback */
-    'Times New Roman',          /* English serif fallback */
-    serif;
-  font-size: 16px;
-  line-height: 1.8;
+  font-family:
+    'Inter',
+    'PingFang SC',
+    'Microsoft YaHei',
+    'Helvetica Neue',
+    'Arial',
+    sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "liga" 1, "calt" 1;
+  text-rendering: optimizeLegibility;
 }
 
 /* Headings */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 
-    'Source Han Serif SC',
-    'Source Han Serif CN',
-    'Songti SC',
-    'SimSun',
-    'Georgia',
-    serif;
+  font-family:
+    'Inter',
+    'PingFang SC',
+    'Microsoft YaHei',
+    'Helvetica Neue',
+    'Arial',
+    sans-serif;
   font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
-/* Navigation and UI elements - cleaner sans-serif */
-.menu, 
+/* Navigation and UI elements */
+.menu,
 .sidebar-menu,
-.meta-line, 
+.meta-line,
 footer,
 .blog-meta time {
-  font-family: 
-    'PingFang SC',              /* macOS system Chinese sans-serif */
-    'Microsoft YaHei',          /* Windows system Chinese sans-serif */
-    'Helvetica Neue',           /* English sans-serif */
-    'Arial',                    /* English sans-serif fallback */
+  font-family:
+    'Inter',
+    'PingFang SC',
+    'Microsoft YaHei',
+    'Helvetica Neue',
+    'Arial',
     sans-serif;
 }
 
-/* Code blocks */
+/* Code blocks - clean monospace */
 code, pre {
-  font-family: 
-    'SF Mono',                  /* macOS monospace */
-    'Monaco',                   /* macOS monospace */
-    'Consolas',                 /* Windows monospace */
-    'Courier New',              /* Cross-platform monospace */
+  font-family:
+    'IBM Plex Mono',
+    'SF Mono',
+    'Monaco',
+    'Consolas',
+    'Courier New',
     monospace;
-  font-size: 0.9em;
-}
-
-/* Ensure proper Chinese punctuation spacing */
-body {
-  text-spacing: ideograph-alpha ideograph-numeric;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-size: 0.875em;
 }
 
 /* Better readability for Chinese text */
@@ -67,4 +67,3 @@ p, li, blockquote {
   font-feature-settings: "liga" 1, "calt" 1;
   text-rendering: optimizeLegibility;
 }
-
